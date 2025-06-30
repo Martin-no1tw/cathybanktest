@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS currency (
+    code VARCHAR(10) PRIMARY KEY,
+    name_zh VARCHAR(20) NOT NULL
+);
