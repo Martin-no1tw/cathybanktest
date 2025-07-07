@@ -55,14 +55,24 @@ public class CoindeskService {
             String formattedTime = dstFmt.format(srcFmt.parse(updated));
 
             // 使用 Stream 處理 bpi -> List<Map<String, String>>
+            List<Currency> allCurrencies = currencyRepository.findAll();
+
+            //把幣別代碼對應中文名稱放到 Map
+            Map<String, String> currencyNameMap = allCurrencies.stream()
+                    .collect(Collectors.toMap(
+                            Currency::getCode,
+                            Currency::getNameZh
+                    ));
+
+            //處理 bpi 並查找中文名稱
             List<Map<String, String>> currencyList = bpi.entrySet().stream()
                     .map(entry -> {
                         String code = entry.getKey();
                         Map<String, Object> value = (Map<String, Object>) entry.getValue();
                         String rate = (String) value.get("rate");
-                        String zh = currencyRepository.findById(code)
-                                .map(Currency::getNameZh)
-                                .orElse("未查詢到相關幣別");
+
+                        // 從 Map 查找中文名稱
+                        String zh = currencyNameMap.getOrDefault(code, "未查詢到相關幣別");
 
                         Map<String, String> row = new LinkedHashMap<>();
                         row.put("code", code);
@@ -71,13 +81,12 @@ public class CoindeskService {
                         return row;
                     })
                     .collect(Collectors.toList());
-
             result.put("updateTime", formattedTime);
-            result.put("currencyRates", currencyList);
-            return result;
+            result.put("currencyList", currencyList);
 
         } catch (Exception e) {
             return Collections.singletonMap("ERROR_Message", e.getMessage());
         }
+        return result;
     }
 }
