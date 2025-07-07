@@ -82,7 +82,7 @@ public class CoindeskService {
                     })
                     .collect(Collectors.toList());
             result.put("updateTime", formattedTime);
-            result.put("currencyList", currencyList);
+            result.put("currencyRates", currencyList);
 
         } catch (Exception e) {
             return Collections.singletonMap("ERROR_Message", e.getMessage());
